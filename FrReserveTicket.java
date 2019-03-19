@@ -1,0 +1,450 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package mwbs;
+
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import jdk.nashorn.internal.ir.Statement;
+
+/**
+ *
+ * @author Imperator
+ */
+public class FrReserveTicket extends javax.swing.JFrame {
+
+    /**
+     * Creates new form FrReserveTicket
+     */
+    Connection conMain;
+    Statement stmtMain;
+    PreparedStatement pstmtMain;
+    ResultSet rsMain;
+    int intMovieID;
+    int intTicketID;
+    public FrReserveTicket(int intID) {
+        this.intMovieID  = intID;
+        this.intTicketID = incrementID();
+        labelBackground();
+        initComponents();
+        getMovie();
+        setCurrentDate();
+    }
+    
+    private void labelDialogBackground(){
+        try {
+            BufferedImage bfimgBackground = ImageIO.read(new File("src/mwbs/images/background.png"));
+            Image imgBackground = bfimgBackground.getScaledInstance(250, 108, java.awt.Image.SCALE_SMOOTH);
+            dlgCode.setContentPane(new JLabel(new ImageIcon(imgBackground)));
+        }
+        catch (IOException ex) {
+        }
+    }
+    
+    private void labelBackground(){
+        try {
+            BufferedImage bfimgBackground = ImageIO.read(new File("src/mwbs/images/background.png"));
+            Image imgBackground = bfimgBackground.getScaledInstance(411, 410, java.awt.Image.SCALE_SMOOTH);
+            setContentPane(new JLabel(new ImageIcon(imgBackground)));
+        }
+        catch (IOException ex) {
+        }
+    }
+    
+    private void setCurrentDate(){
+        Calendar clCalendar = Calendar.getInstance();
+        Date dtCurrentDate = new Date();
+        clCalendar.setTime(dtCurrentDate);
+        clCalendar.add(Calendar.MONTH, 1);
+        dtchoDateChooser.setMinSelectableDate(dtCurrentDate);
+        dtchoDateChooser.setMaxSelectableDate(clCalendar.getTime());
+    }
+    
+    private FrReserveTicket(){
+        this.intMovieID  = 1000;
+        this.intTicketID = incrementID();
+        initComponents();
+        getMovie();
+        setCurrentDate();
+    }
+    
+    private void connectDatabase(){
+        try{
+            String strURL = "jdbc:ucanaccess://MWBS.accdb";
+            String strDatabaseUsername = "";
+            String strDatabasePassword = "";
+            conMain = DriverManager.getConnection(strURL, strDatabaseUsername, strDatabasePassword);
+        }   
+        catch(SQLException error){
+        }
+    }
+    
+    private void getMovie(){
+        connectDatabase();
+        String strQuery = "SELECT "
+                + "movie_ID, movie_Name "
+                + "FROM MovieList "
+                + "ORDER BY movie_ID";
+        File flImage = new File("src\\mwbs\\images\\movies\\"+intMovieID+".jpg");
+        try{
+            pstmtMain = conMain.prepareStatement(strQuery);
+            rsMain = pstmtMain.executeQuery();
+            while(rsMain.next()){
+                if(rsMain.getInt("movie_ID") == intMovieID){
+                    lblMovieTitle.setText(rsMain.getString("movie_Name"));
+                    try{
+                        BufferedImage bfimgFile = ImageIO.read(flImage);
+                        Image imgFile = bfimgFile.getScaledInstance(240, 360, java.awt.Image.SCALE_SMOOTH);
+                        lblMovieImage.setIcon(new ImageIcon(imgFile));
+                    }
+                    catch(IOException error){
+                    }
+                }
+            }
+        }
+        catch(SQLException error){
+        }
+    }
+    
+    private int incrementID(){
+        connectDatabase();
+        String strID;
+        int intTicketID = 0;
+        String strQuery = "SELECT "
+                + "ticket_ID "
+                + "from TicketList "
+                + "order by ticket_ID";
+        try{
+            pstmtMain = conMain.prepareStatement(strQuery);
+            rsMain = pstmtMain.executeQuery();
+            while(rsMain.next()){
+                strID = rsMain.getString("ticket_ID");
+                intTicketID = Integer.parseInt(strID)+1;
+            }
+        }
+        catch(SQLException error){
+            System.out.println(error);
+        }
+        if(intTicketID == 0){
+            return 1000;
+        }
+        else{
+            return intTicketID;
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        dlgCode = new javax.swing.JDialog();
+        lblTitle = new javax.swing.JLabel();
+        btnConfirm = new javax.swing.JButton();
+        lblCode = new javax.swing.JLabel();
+        lblMovieTitle = new javax.swing.JLabel();
+        lblMovieImage = new javax.swing.JLabel();
+        btnCancel = new javax.swing.JButton();
+        lblDate = new javax.swing.JLabel();
+        dtchoDateChooser = new com.toedter.calendar.JDateChooser();
+        lblLName = new javax.swing.JLabel();
+        tfldLName = new javax.swing.JTextField();
+        tfldFName = new javax.swing.JTextField();
+        lblFName = new javax.swing.JLabel();
+        btnReserve = new javax.swing.JButton();
+
+        labelDialogBackground();
+        dlgCode.setMaximumSize(new java.awt.Dimension(250, 108));
+        dlgCode.setMinimumSize(new java.awt.Dimension(250, 108));
+        dlgCode.setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+        dlgCode.setUndecorated(true);
+        dlgCode.setResizable(false);
+
+        lblTitle.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblTitle.setForeground(new java.awt.Color(255, 255, 255));
+        lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle.setText("Your ticket code is:");
+
+        btnConfirm.setBackground(new java.awt.Color(230, 175, 82));
+        btnConfirm.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnConfirm.setForeground(new java.awt.Color(255, 255, 255));
+        btnConfirm.setText("Confirm");
+        btnConfirm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfirmActionPerformed(evt);
+            }
+        });
+
+        lblCode.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblCode.setForeground(new java.awt.Color(255, 255, 255));
+        lblCode.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCode.setText("jLabel1");
+
+        javax.swing.GroupLayout dlgCodeLayout = new javax.swing.GroupLayout(dlgCode.getContentPane());
+        dlgCode.getContentPane().setLayout(dlgCodeLayout);
+        dlgCodeLayout.setHorizontalGroup(
+            dlgCodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dlgCodeLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(dlgCodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnConfirm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblTitle, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                    .addComponent(lblCode, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        dlgCodeLayout.setVerticalGroup(
+            dlgCodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dlgCodeLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblTitle)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblCode)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnConfirm)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
+        setResizable(false);
+
+        lblMovieTitle.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblMovieTitle.setForeground(new java.awt.Color(255, 255, 255));
+        lblMovieTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblMovieTitle.setText("jLabel1");
+
+        lblMovieImage.setBackground(new java.awt.Color(255, 153, 51));
+        lblMovieImage.setMaximumSize(new java.awt.Dimension(240, 360));
+        lblMovieImage.setMinimumSize(new java.awt.Dimension(240, 360));
+        lblMovieImage.setOpaque(true);
+        lblMovieImage.setPreferredSize(new java.awt.Dimension(240, 360));
+
+        btnCancel.setBackground(new java.awt.Color(230, 175, 82));
+        btnCancel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnCancel.setForeground(new java.awt.Color(255, 255, 255));
+        btnCancel.setText("Cancel");
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
+
+        lblDate.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblDate.setForeground(new java.awt.Color(255, 255, 255));
+        lblDate.setText("Date");
+
+        dtchoDateChooser.setDateFormatString("yyyy/MM/dd");
+
+        lblLName.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblLName.setForeground(new java.awt.Color(255, 255, 255));
+        lblLName.setText("Last Name");
+
+        lblFName.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblFName.setForeground(new java.awt.Color(255, 255, 255));
+        lblFName.setText("First Name");
+
+        btnReserve.setBackground(new java.awt.Color(230, 175, 82));
+        btnReserve.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnReserve.setForeground(new java.awt.Color(255, 255, 255));
+        btnReserve.setText("Reserve");
+        btnReserve.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReserveActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(lblMovieTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblMovieImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dtchoDateChooser, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                    .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tfldLName)
+                    .addComponent(tfldFName)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblLName)
+                            .addComponent(lblFName))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(btnReserve, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblMovieTitle)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblDate)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dtchoDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblLName)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfldLName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblFName)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfldFName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnReserve)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnCancel))
+                    .addComponent(lblMovieImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pack();
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        new FrReserveMovie().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnReserveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReserveActionPerformed
+        String strLName = tfldLName.getText();
+        String strFName = tfldFName.getText();
+        Date dtDate = dtchoDateChooser.getDate();
+        if (strLName.equals("")||strFName.equals("")||dtDate == null) {
+            System.out.println("BEEP");
+            java.awt.Toolkit.getDefaultToolkit().beep();
+        }
+        else{
+            DateFormat dtfrTextFormat = new SimpleDateFormat("MMdd");
+            DateFormat dtfrDefaultFormat = new SimpleDateFormat("MM/dd/yyyy");
+            String strName = strLName + ", " + strFName;
+            String strMovieID = String.valueOf(intMovieID);
+            String strDate = dtfrTextFormat.format(dtDate);
+            System.out.println(dtfrDefaultFormat.format(dtDate));
+            String strCode = strLName.charAt(0) + "" + strFName.charAt(0) + "-" + strDate + "-" + intTicketID;
+            int intReserved = 0;
+            String strReservedQuery = "SELECT "
+                    + "movie_ID, movie_Reserved "
+                    + "FROM MovieList "
+                    + "ORDER BY movie_ID";
+            String strTicketQuery = "INSERT INTO "
+                    + "TicketList(ticket_ID, ticket_Code, ticket_Name, ticket_Movie, ticket_Date, ticket_Status)"
+                    + " VALUES(" + intTicketID + ",'" + strCode + "','" + strName + "', '"+intMovieID+"', #"+dtfrDefaultFormat.format(dtDate)+"#,'" + "R" + "')";
+            try {
+                pstmtMain = conMain.prepareStatement(strReservedQuery);
+                rsMain = pstmtMain.executeQuery();
+                while(rsMain.next()){
+                    if(rsMain.getString("movie_ID").equals(strMovieID)){
+                        intReserved = rsMain.getInt("movie_Reserved");
+                        System.out.println(intReserved);
+                    }
+                }
+                String strMovieQuery = "UPDATE MovieList SET "
+                        + "movie_Reserved = '"+(intReserved+1)+"' "
+                        + "WHERE movie_ID = "+intMovieID;
+                pstmtMain = conMain.prepareStatement(strMovieQuery);
+                pstmtMain.execute();
+                pstmtMain = conMain.prepareStatement(strTicketQuery);
+                pstmtMain.execute();
+                lblCode.setText(strCode);
+                dlgCode.setLocationRelativeTo(null);
+                dlgCode.setVisible(true);
+            }
+            catch (SQLException error) {
+                System.out.println(error);
+                java.awt.Toolkit.getDefaultToolkit().beep();
+            }
+        }
+    }//GEN-LAST:event_btnReserveActionPerformed
+
+    private void btnConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmActionPerformed
+        dlgCode.setVisible(false);
+        new FrMainTicket().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnConfirmActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        }
+        catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(FrReserveTicket.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(FrReserveTicket.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(FrReserveTicket.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(FrReserveTicket.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new FrReserveTicket().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCancel;
+    private javax.swing.JButton btnConfirm;
+    private javax.swing.JButton btnReserve;
+    private javax.swing.JDialog dlgCode;
+    private com.toedter.calendar.JDateChooser dtchoDateChooser;
+    private javax.swing.JLabel lblCode;
+    private javax.swing.JLabel lblDate;
+    private javax.swing.JLabel lblFName;
+    private javax.swing.JLabel lblLName;
+    private javax.swing.JLabel lblMovieImage;
+    private javax.swing.JLabel lblMovieTitle;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JTextField tfldFName;
+    private javax.swing.JTextField tfldLName;
+    // End of variables declaration//GEN-END:variables
+}
